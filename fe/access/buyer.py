@@ -69,12 +69,55 @@ class Buyer:
         return r.status_code, r.json()
 
     def list_orders(
-        self, status: str = "", page: int = 1, page_size: int = 20
+        self,
+        status: str = "",
+        page: int = 1,
+        page_size: int = 20,
+        created_from: str = "",
+        created_to: str = "",
+        sort_by: str = "updated_at",
     ) -> (int, dict):
-        params = {"user_id": self.user_id, "page": page, "page_size": page_size}
+        params = {
+            "user_id": self.user_id,
+            "page": page,
+            "page_size": page_size,
+            "sort_by": sort_by,
+        }
         if status:
             params["status"] = status
+        if created_from:
+            params["created_from"] = created_from
+        if created_to:
+            params["created_to"] = created_to
         url = urljoin(self.url_prefix, "orders")
         headers = {"token": self.token}
         r = requests.get(url, headers=headers, params=params)
+        return r.status_code, r.json()
+
+    def export_orders(
+        self,
+        status: str = "",
+        created_from: str = "",
+        created_to: str = "",
+        sort_by: str = "updated_at",
+        fmt: str = "json",
+        limit: int = 500,
+    ):
+        params = {
+            "user_id": self.user_id,
+            "format": fmt,
+            "sort_by": sort_by,
+            "limit": limit,
+        }
+        if status:
+            params["status"] = status
+        if created_from:
+            params["created_from"] = created_from
+        if created_to:
+            params["created_to"] = created_to
+        url = urljoin(self.url_prefix, "orders/export")
+        headers = {"token": self.token}
+        r = requests.get(url, headers=headers, params=params)
+        if fmt == "csv":
+            return r.status_code, r.text
         return r.status_code, r.json()

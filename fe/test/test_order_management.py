@@ -5,7 +5,8 @@ from datetime import datetime, timedelta
 import pytest
 
 from be.model.buyer import Buyer as BuyerModel
-from be.model.mongo import get_book_collection
+from be.model.dao import order_dao
+from be.model.sql_conn import session_scope
 from fe import conf
 from fe.access.new_buyer import register_new_buyer
 from fe.access.new_seller import register_new_seller
@@ -22,6 +23,7 @@ class TestOrderManagement:
 
         self.buyer_id = f"buyer_order_mgmt_{uuid.uuid4()}"
         self.buyer = register_new_buyer(self.buyer_id, self.password)
+        assert self.buyer.add_funds(100000) == 200
 
         book = self._make_book()
         assert self.seller.add_book(self.store_id, 5, book) == 200
@@ -74,17 +76,14 @@ class TestOrderManagement:
         BuyerModel.pending_timeout = 1
         try:
             order_id = self._create_order()
-            collection = get_book_collection()
-            collection.update_one(
-                {"doc_type": "order", "order_id": order_id},
-                {
-                    "$set": {
-                        "created_at": datetime.utcnow() - timedelta(seconds=10),
-                        "updated_at": datetime.utcnow() - timedelta(seconds=10),
-                    }
-                },
-            )
-            time.sleep(1.5)
+            with session_scope() as session:
+                order = order_dao.get_order(session, order_id)
+                assert order is not None
+                order.created_at = datetime.utcnow() - timedelta(seconds=10)
+                order.updated_at = datetime.utcnow() - timedelta(seconds=10)
+                order.expires_at = datetime.utcnow() - timedelta(seconds=5)
+                session.flush()
+            time.sleep(1.2)
             status, data = self.buyer.list_orders()
             assert status == 200
             orders = data.get("orders", [])
@@ -115,15 +114,24 @@ class TestOrderManagement:
 
     def test_list_orders_with_status_and_pagination(self):
         order_ids = [self._create_order() for _ in range(3)]
-        collection = get_book_collection()
-        collection.update_one(
-            {"doc_type": "order", "order_id": order_ids[0]},
-            {"$set": {"status": "paid", "updated_at": datetime.utcnow()}},
-        )
-        collection.update_one(
-            {"doc_type": "order", "order_id": order_ids[1]},
-            {"$set": {"status": "cancelled", "updated_at": datetime.utcnow()}},
-        )
+        now = datetime.utcnow()
+        with session_scope() as session:
+            assert order_dao.update_order_status(
+                session,
+                order_id=order_ids[0],
+                expected_status="pending",
+                new_status="paid",
+                updated_at=now,
+                payment_time=now,
+            )
+            assert order_dao.update_order_status(
+                session,
+                order_id=order_ids[1],
+                expected_status="pending",
+                new_status="cancelled",
+                updated_at=now,
+                cancelled_at=now,
+            )
         status, data = self.buyer.list_orders(status="paid")
         assert status == 200
         ids = {o["order_id"] for o in data.get("orders", [])}

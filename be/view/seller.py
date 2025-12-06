@@ -54,3 +54,16 @@ def ship_order():
     code, message = s.ship_order(user_id, store_id, order_id)
 
     return jsonify({"message": message}), code
+
+
+@bp_seller.route("/batch_add_books", methods=["POST"])
+def batch_add_books():
+    payload = request.json or {}
+    user_id: str = payload.get("user_id")
+    store_id: str = payload.get("store_id")
+    books = payload.get("books") or []
+
+    s = seller.Seller()
+    code, message, results = s.batch_add_books(user_id, store_id, books)
+    response = {"message": message, "results": results}
+    return jsonify(response), code

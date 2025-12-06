@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import Dict, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from be.model import error, db_conn
 from be.model.dao import user_dao, store_dao, order_dao, search_dao
@@ -127,6 +127,51 @@ class Seller(db_conn.DBConn):
             return 200, "ok"
         except Exception as e:
             return 530, f"{e}"
+
+    def batch_add_books(
+        self,
+        user_id: str,
+        store_id: str,
+        books: List[Dict],
+    ):
+        try:
+            if not self.user_id_exist(user_id):
+                return error.error_non_exist_user_id(user_id) + ([],)
+            if not self.store_id_exist(store_id):
+                return error.error_non_exist_store_id(store_id) + ([],)
+
+            results = []
+            book_list = books if isinstance(books, list) else []
+            for entry in book_list:
+                payload = entry.get("book_info") if isinstance(entry, dict) else None
+                if not isinstance(payload, dict):
+                    results.append(
+                        {"book_id": None, "code": 530, "message": "invalid book info"}
+                    )
+                    continue
+                book_id = payload.get("id")
+                if not book_id:
+                    results.append(
+                        {"book_id": None, "code": 530, "message": "missing book id"}
+                    )
+                    continue
+                stock_level = entry.get("stock_level", 0)
+                code, message = self.add_book(
+                    user_id,
+                    store_id,
+                    book_id,
+                    json.dumps(payload),
+                    stock_level,
+                )
+                results.append({"book_id": book_id, "code": code, "message": message})
+
+            overall_code = 200
+            overall_message = "ok"
+            if any(item["code"] != 200 for item in results):
+                overall_message = "partial failure"
+            return overall_code, overall_message, results
+        except Exception as e:
+            return 530, f"{e}", []
 
     def add_stock_level(
         self, user_id: str, store_id: str, book_id: str, add_stock_level: int

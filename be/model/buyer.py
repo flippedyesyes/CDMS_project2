@@ -1,3 +1,5 @@
+import csv
+import io
 import json
 import logging
 import uuid
@@ -249,6 +251,9 @@ class Buyer(db_conn.DBConn):
         status: Optional[str],
         page: int,
         page_size: int,
+        created_from: Optional[datetime] = None,
+        created_to: Optional[datetime] = None,
+        sort_by: str = "updated_at",
     ) -> Tuple[int, str, Dict]:
         try:
             self.cancel_expired_orders()
@@ -261,9 +266,9 @@ class Buyer(db_conn.DBConn):
                     session,
                     user_id=user_id,
                     status=status,
-                    created_from=None,
-                    created_to=None,
-                    sort_by="updated_at",
+                    created_from=created_from,
+                    created_to=created_to,
+                    sort_by=sort_by,
                     page=safe_page,
                     page_size=safe_page_size,
                 )
@@ -280,3 +285,53 @@ class Buyer(db_conn.DBConn):
                 return 200, "ok", payload
         except BaseException as e:
             return 530, "{}".format(str(e)), {}
+
+    def export_orders(
+        self,
+        user_id: str,
+        status: Optional[str],
+        created_from: Optional[datetime],
+        created_to: Optional[datetime],
+        sort_by: str,
+        fmt: str = "json",
+        limit: int = 500,
+    ) -> Tuple[int, str, Optional[Dict]]:
+        safe_limit = max(min(limit or 500, 2000), 1)
+        code, message, payload = self.list_orders(
+            user_id=user_id,
+            status=status,
+            page=1,
+            page_size=safe_limit,
+            created_from=created_from,
+            created_to=created_to,
+            sort_by=sort_by,
+        )
+        if code != 200:
+            return code, message, None
+        orders = payload.get("orders", [])
+        if fmt == "csv":
+            buffer = io.StringIO()
+            writer = csv.writer(buffer)
+            writer.writerow(
+                [
+                    "order_id",
+                    "store_id",
+                    "status",
+                    "total_price",
+                    "created_at",
+                    "updated_at",
+                ]
+            )
+            for order in orders:
+                writer.writerow(
+                    [
+                        order.get("order_id"),
+                        order.get("store_id"),
+                        order.get("status"),
+                        order.get("total_price"),
+                        order.get("created_at"),
+                        order.get("updated_at"),
+                    ]
+                )
+            return 200, "ok", {"content": buffer.getvalue(), "format": "csv"}
+        return 200, "ok", {"orders": orders, "format": "json"}

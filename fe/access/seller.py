@@ -63,3 +63,14 @@ class Seller:
         headers = {"token": self.token}
         r = requests.post(url, headers=headers, json=json)
         return r.status_code
+
+    def batch_add_books(self, store_id: str, books: list) -> (int, dict):
+        json = {
+            "user_id": self.seller_id,
+            "store_id": store_id,
+            "books": books,
+        }
+        url = urljoin(self.url_prefix, "batch_add_books")
+        headers = {"token": self.token}
+        r = requests.post(url, headers=headers, json=json)
+        return r.status_code, r.json()

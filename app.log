@@ -22492,3 +22492,246 @@ INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 16:42:47] "POST /auth/login HTTP/1.1" 2
 INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 16:42:47] "[31m[1mPOST /auth/unregister HTTP/1.1[0m" 401 -
 INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 16:42:47] "POST /auth/logout HTTP/1.1" 200 -
 INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 16:42:47] "POST /auth/unregister HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /seller/create_store HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /seller/batch_add_books HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /seller/create_store HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /seller/add_book HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /seller/batch_add_books HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /seller/create_store HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "[35m[1mPOST /seller/batch_add_books HTTP/1.1[0m" 513 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /seller/create_store HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /seller/add_book HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /buyer/add_funds HTTP/1.1" 200 -
+ERROR:root:new_order failed: (sqlite3.IntegrityError) NOT NULL constraint failed: order_items.id
+[SQL: INSERT INTO order_items (order_id, book_id, count, unit_price) VALUES (?, ?, ?, ?)]
+[parameters: ('buyer_export_c1e7380d-3c94-44b5-a851-800a707c4360_store_export_18a35b12-f404-4536-a08a-66d9850f5d13_de4ad84d-d286-11f0-90d2-50284ac326bc', 'book-00001', 1, 1505)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+Traceback (most recent call last):
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\engine\default.py", line 951, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.IntegrityError: NOT NULL constraint failed: order_items.id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\dase\CDMS\大作业二\bookstore\be\model\buyer.py", line 100, in new_order
+    order_dao.add_order_items(session, order_id, order_items)
+  File "D:\dase\CDMS\大作业二\bookstore\be\model\dao\order_dao.py", line 42, in add_order_items
+    session.flush()
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+           ^^^^^
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2355, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\engine\default.py", line 951, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) NOT NULL constraint failed: order_items.id
+[SQL: INSERT INTO order_items (order_id, book_id, count, unit_price) VALUES (?, ?, ?, ?)]
+[parameters: ('buyer_export_c1e7380d-3c94-44b5-a851-800a707c4360_store_export_18a35b12-f404-4536-a08a-66d9850f5d13_de4ad84d-d286-11f0-90d2-50284ac326bc', 'book-00001', 1, 1505)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "[35m[1mPOST /buyer/new_order HTTP/1.1[0m" 530 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /seller/create_store HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /seller/add_book HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "POST /buyer/add_funds HTTP/1.1" 200 -
+ERROR:root:new_order failed: (sqlite3.IntegrityError) NOT NULL constraint failed: order_items.id
+[SQL: INSERT INTO order_items (order_id, book_id, count, unit_price) VALUES (?, ?, ?, ?)]
+[parameters: ('buyer_export_79caadb6-17f3-4c1c-8ee6-5130d267ce18_store_export_3bd679ff-0f14-45cc-8f8e-705767b71a75_de82087b-d286-11f0-8011-50284ac326bc', 'book-00001', 1, 1505)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+Traceback (most recent call last):
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\engine\default.py", line 951, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.IntegrityError: NOT NULL constraint failed: order_items.id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\dase\CDMS\大作业二\bookstore\be\model\buyer.py", line 100, in new_order
+    order_dao.add_order_items(session, order_id, order_items)
+  File "D:\dase\CDMS\大作业二\bookstore\be\model\dao\order_dao.py", line 42, in add_order_items
+    session.flush()
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+           ^^^^^
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2355, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "D:\dase\CDMS\大作业二\bookstore\.venv\Lib\site-packages\sqlalchemy\engine\default.py", line 951, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) NOT NULL constraint failed: order_items.id
+[SQL: INSERT INTO order_items (order_id, book_id, count, unit_price) VALUES (?, ?, ?, ?)]
+[parameters: ('buyer_export_79caadb6-17f3-4c1c-8ee6-5130d267ce18_store_export_3bd679ff-0f14-45cc-8f8e-705767b71a75_de82087b-d286-11f0-8011-50284ac326bc', 'book-00001', 1, 1505)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:35:14] "[35m[1mPOST /buyer/new_order HTTP/1.1[0m" 530 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /seller/create_store HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /seller/batch_add_books HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /seller/create_store HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /seller/add_book HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /seller/batch_add_books HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /seller/create_store HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "[35m[1mPOST /seller/batch_add_books HTTP/1.1[0m" 513 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /seller/create_store HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /seller/add_book HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /buyer/add_funds HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /buyer/new_order HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /buyer/payment HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /buyer/new_order HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "GET /buyer/orders/export?user_id=buyer_export_b59d95d8-3405-42be-96d6-340a8186982c&format=json&sort_by=updated_at&limit=500&status=paid HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /seller/create_store HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /seller/add_book HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /buyer/add_funds HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /buyer/new_order HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "POST /buyer/payment HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:38:34] "GET /buyer/orders/export?user_id=buyer_export_764c2920-b7d0-4acf-b824-003c37e100d3&format=csv&sort_by=updated_at&limit=500 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:24] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:24] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:24] "POST /seller/create_store HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:24] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:24] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:24] "POST /buyer/add_funds HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:24] "POST /seller/add_book HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:24] "POST /buyer/new_order HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:24] "POST /buyer/cancel_order HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:24] "GET /buyer/orders?user_id=buyer_order_mgmt_454b571a-c1ed-4e9b-9f70-d882876c4920&page=1&page_size=20&sort_by=updated_at HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:24] "POST /buyer/new_order HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:24] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:24] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:24] "POST /seller/create_store HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:24] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:24] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:24] "POST /buyer/add_funds HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:24] "POST /seller/add_book HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:25] "POST /buyer/new_order HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:25] "GET /buyer/orders?user_id=buyer_order_mgmt_9efd3190-3808-4b2f-b742-59ea7efd828b&page=1&page_size=20&sort_by=updated_at HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:25] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:25] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:25] "POST /seller/create_store HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:25] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:25] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:25] "POST /buyer/add_funds HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:25] "POST /seller/add_book HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:25] "POST /buyer/new_order HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "GET /buyer/orders?user_id=buyer_order_mgmt_cd991f4f-0575-4005-b345-cac1856b4511&page=1&page_size=20&sort_by=updated_at HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /buyer/new_order HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /seller/create_store HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /buyer/add_funds HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /seller/add_book HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /buyer/new_order HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /buyer/cancel_order HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /seller/create_store HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /buyer/add_funds HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /seller/add_book HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /buyer/new_order HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "[31m[1mPOST /buyer/cancel_order HTTP/1.1[0m" 401 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /seller/create_store HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /buyer/add_funds HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /seller/add_book HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /buyer/new_order HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /buyer/new_order HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "POST /buyer/new_order HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "GET /buyer/orders?user_id=buyer_order_mgmt_f406f3f5-9446-4759-a6c3-595438fa56c2&page=1&page_size=20&sort_by=updated_at&status=paid HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 17:58:26] "GET /buyer/orders?user_id=buyer_order_mgmt_f406f3f5-9446-4759-a6c3-595438fa56c2&page=2&page_size=2&sort_by=updated_at HTTP/1.1" 200 -
