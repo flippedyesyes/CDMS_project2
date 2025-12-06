@@ -127,6 +127,19 @@ class OrderItem(Base):
 
 class BookSearchIndex(Base):
     __tablename__ = "book_search_index"
+    __table_args__ = (
+        Index(
+            "idx_search_fulltext",
+            "title",
+            "author",
+            "tags",
+            "catalog_excerpt",
+            "intro_excerpt",
+            "content_excerpt",
+            mysql_prefix="FULLTEXT",
+        ),
+        Index("idx_search_store", "store_id"),
+    )
 
     book_id = Column(String(64), ForeignKey("books.book_id"), primary_key=True)
     title = Column(Text, nullable=True)

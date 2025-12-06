@@ -5,6 +5,11 @@ from sqlalchemy.orm import Session
 
 from be.model.models import Book, BookSearchIndex, Inventory
 
+try:
+    from sqlalchemy.dialects.mysql import match as mysql_match
+except ImportError:  # pragma: no cover
+    mysql_match = None
+
 
 def upsert_search_index(session: Session, book_id: str, **kwargs) -> BookSearchIndex:
     entry = session.get(BookSearchIndex, book_id)
@@ -35,29 +40,35 @@ def search_books(
     if store_id:
         query = query.filter(Inventory.store_id == store_id)
 
+    score_column = None
     if keyword:
-        like_expr = f"%{keyword}%"
-        filters = []
-        fields = scope or ["title", "author", "tags", "catalog", "content"]
-        for field in fields:
-            if field == "title":
-                filters.append(Book.title.ilike(like_expr))
-            elif field == "author":
-                filters.append(Book.author.ilike(like_expr))
-            elif field == "tags":
-                filters.append(BookSearchIndex.tags.ilike(like_expr))
-            elif field == "catalog":
-                filters.append(BookSearchIndex.catalog_excerpt.ilike(like_expr))
-            elif field == "content":
-                filters.append(BookSearchIndex.content_excerpt.ilike(like_expr))
-        if filters:
-            query = query.filter(or_(*filters))
+        column_map = {
+            "title": BookSearchIndex.title,
+            "author": BookSearchIndex.author,
+            "tags": BookSearchIndex.tags,
+            "catalog": BookSearchIndex.catalog_excerpt,
+            "content": BookSearchIndex.content_excerpt,
+            "intro": BookSearchIndex.intro_excerpt,
+        }
+        fields = scope or ["title", "author", "tags", "catalog", "content", "intro"]
+        selected_columns = [column_map.get(f) for f in fields if column_map.get(f) is not None]
+
+        if mysql_match and selected_columns:
+            base_match = mysql_match(*selected_columns, against=keyword)
+            score_column = base_match.label("match_score")
+            query = query.filter(base_match.in_boolean_mode())
+            query = query.add_columns(score_column)
+        else:
+            like_expr = f"%{keyword}%"
+            filters = [col.ilike(like_expr) for col in selected_columns if col is not None]
+            if filters:
+                query = query.filter(or_(*filters))
 
     sort_column = Inventory.updated_at
     if sort == "price":
         sort_column = Inventory.price
-    elif sort == "score" and keyword:
-        sort_column = Inventory.updated_at  # placeholder
+    elif sort == "score" and score_column is not None:
+        sort_column = score_column
 
     total = query.count()
     rows = (
@@ -68,6 +79,10 @@ def search_books(
     )
 
     results = []
-    for inv, book, index in rows:
+    for row in rows:
+        if score_column is not None:
+            inv, book, index, _score = row
+        else:
+            inv, book, index = row
         results.append({"inventory": inv, "book": book, "search_index": index})
     return total, results
