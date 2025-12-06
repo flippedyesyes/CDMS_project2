@@ -5,11 +5,10 @@ from typing import Dict, Tuple
 
 import jwt
 from jwt import exceptions as jwt_exceptions
-from pymongo.collection import Collection
-from pymongo.errors import DuplicateKeyError, PyMongoError
 
 from be.model import error
-from be.model.mongo import get_book_collection
+from be.model.db_conn import DBConn
+from be.model.dao import user_dao
 
 
 def jwt_encode(user_id: str, terminal: str) -> str:
@@ -27,15 +26,9 @@ def jwt_decode(encoded_token: str, user_id: str) -> Dict:
     return jwt.decode(encoded_token, key=user_id, algorithms=["HS256"])
 
 
-class User:
+class User(DBConn):
     token_lifetime: int = 3600
     _doc_type = "user"
-
-    def __init__(self):
-        self.collection: Collection = get_book_collection()
-
-    def __user_filter(self, user_id: str) -> Dict:
-        return {"doc_type": self._doc_type, "user_id": user_id}
 
     def __check_token(self, user_id: str, db_token: str, token: str) -> bool:
         try:
@@ -55,55 +48,57 @@ class User:
         now = datetime.utcnow()
         terminal = f"terminal_{time.time()}"
         token = jwt_encode(user_id, terminal)
-        doc = {
-            "doc_type": self._doc_type,
-            "user_id": user_id,
-            "password": password,
-            "balance": 0,
-            "token": token,
-            "terminal": terminal,
-            "created_at": now,
-            "updated_at": now,
-        }
         try:
-            self.collection.insert_one(doc)
-        except DuplicateKeyError:
-            return error.error_exist_user_id(user_id)
-        except PyMongoError as e:
-            logging.error("register mongo error: %s", str(e))
-            return 528, "{}".format(str(e))
+            with self.session_scope() as session:
+                existing = user_dao.get_user(
+                    session, user_id, include_inactive=True
+                )
+                if existing and existing.status == "active":
+                    return error.error_exist_user_id(user_id)
+                if existing:
+                    user_dao.revive_user(
+                        session,
+                        existing,
+                        password=password,
+                        token=token,
+                        terminal=terminal,
+                    )
+                else:
+                    user_dao.create_user(
+                        session,
+                        user_id=user_id,
+                        password=password,
+                        token=token,
+                        terminal=terminal,
+                    )
         except BaseException as e:
-            logging.error("register unexpected error: %s", str(e))
+            logging.error("register error: %s", str(e))
             return 530, "{}".format(str(e))
         return 200, "ok"
 
     def check_token(self, user_id: str, token: str) -> Tuple[int, str]:
         try:
-            doc = self.collection.find_one(
-                self.__user_filter(user_id), {"token": 1, "_id": 0}
-            )
-            if doc is None:
-                return error.error_authorization_fail()
-            if not self.__check_token(user_id, doc.get("token"), token):
-                return error.error_authorization_fail()
-            return 200, "ok"
-        except PyMongoError as e:
-            logging.error("check_token mongo error: %s", str(e))
-            return 528, "{}".format(str(e))
+            with self.session_scope() as session:
+                user = user_dao.get_user(session, user_id)
+                if user is None:
+                    return error.error_authorization_fail()
+                if not self.__check_token(user_id, user.token, token):
+                    return error.error_authorization_fail()
+                return 200, "ok"
+        except BaseException as e:
+            logging.error("check_token error: %s", str(e))
+            return 530, "{}".format(str(e))
 
     def check_password(self, user_id: str, password: str) -> Tuple[int, str]:
         try:
-            doc = self.collection.find_one(
-                self.__user_filter(user_id), {"password": 1, "_id": 0}
-            )
-            if doc is None:
-                return error.error_authorization_fail()
-            if password != doc.get("password"):
-                return error.error_authorization_fail()
-            return 200, "ok"
-        except PyMongoError as e:
-            logging.error("check_password mongo error: %s", str(e))
-            return 528, "{}".format(str(e))
+            with self.session_scope() as session:
+                user = user_dao.get_user(session, user_id)
+                if user is None or password != user.password:
+                    return error.error_authorization_fail()
+                return 200, "ok"
+        except BaseException as e:
+            logging.error("check_password error: %s", str(e))
+            return 530, "{}".format(str(e))
 
     def login(self, user_id: str, password: str, terminal: str) -> Tuple[int, str, str]:
         try:
@@ -111,24 +106,13 @@ class User:
             if code != 200:
                 return code, message, ""
             token = jwt_encode(user_id, terminal)
-            result = self.collection.update_one(
-                self.__user_filter(user_id),
-                {
-                    "$set": {
-                        "token": token,
-                        "terminal": terminal,
-                        "updated_at": datetime.utcnow(),
-                    }
-                },
-            )
-            if result.matched_count == 0:
-                return error.error_authorization_fail() + ("",)
+            with self.session_scope() as session:
+                updated = user_dao.update_token(session, user_id, token, terminal)
+                if not updated:
+                    return error.error_authorization_fail() + ("",)
             return 200, "ok", token
-        except PyMongoError as e:
-            logging.error("login mongo error: %s", str(e))
-            return 528, "{}".format(str(e)), ""
         except BaseException as e:
-            logging.error("login unexpected error: %s", str(e))
+            logging.error("login error: %s", str(e))
             return 530, "{}".format(str(e)), ""
 
     def logout(self, user_id: str, token: str) -> Tuple[int, str]:
@@ -138,24 +122,13 @@ class User:
                 return code, message
             terminal = f"terminal_{time.time()}"
             dummy_token = jwt_encode(user_id, terminal)
-            result = self.collection.update_one(
-                self.__user_filter(user_id),
-                {
-                    "$set": {
-                        "token": dummy_token,
-                        "terminal": terminal,
-                        "updated_at": datetime.utcnow(),
-                    }
-                },
-            )
-            if result.matched_count == 0:
-                return error.error_authorization_fail()
+            with self.session_scope() as session:
+                updated = user_dao.update_token(session, user_id, dummy_token, terminal)
+                if not updated:
+                    return error.error_authorization_fail()
             return 200, "ok"
-        except PyMongoError as e:
-            logging.error("logout mongo error: %s", str(e))
-            return 528, "{}".format(str(e))
         except BaseException as e:
-            logging.error("logout unexpected error: %s", str(e))
+            logging.error("logout error: %s", str(e))
             return 530, "{}".format(str(e))
 
     def unregister(self, user_id: str, password: str) -> Tuple[int, str]:
@@ -163,15 +136,13 @@ class User:
             code, message = self.check_password(user_id, password)
             if code != 200:
                 return code, message
-            result = self.collection.delete_one(self.__user_filter(user_id))
-            if result.deleted_count != 1:
-                return error.error_authorization_fail()
+            with self.session_scope() as session:
+                deleted = user_dao.soft_delete_user(session, user_id)
+                if not deleted:
+                    return error.error_authorization_fail()
             return 200, "ok"
-        except PyMongoError as e:
-            logging.error("unregister mongo error: %s", str(e))
-            return 528, "{}".format(str(e))
         except BaseException as e:
-            logging.error("unregister unexpected error: %s", str(e))
+            logging.error("unregister error: %s", str(e))
             return 530, "{}".format(str(e))
 
     def change_password(
@@ -183,23 +154,13 @@ class User:
                 return code, message
             terminal = f"terminal_{time.time()}"
             token = jwt_encode(user_id, terminal)
-            result = self.collection.update_one(
-                self.__user_filter(user_id),
-                {
-                    "$set": {
-                        "password": new_password,
-                        "token": token,
-                        "terminal": terminal,
-                        "updated_at": datetime.utcnow(),
-                    }
-                },
-            )
-            if result.matched_count == 0:
-                return error.error_authorization_fail()
+            with self.session_scope() as session:
+                updated = user_dao.update_password(
+                    session, user_id, new_password, token, terminal
+                )
+                if not updated:
+                    return error.error_authorization_fail()
             return 200, "ok"
-        except PyMongoError as e:
-            logging.error("change_password mongo error: %s", str(e))
-            return 528, "{}".format(str(e))
         except BaseException as e:
-            logging.error("change_password unexpected error: %s", str(e))
+            logging.error("change_password error: %s", str(e))
             return 530, "{}".format(str(e))

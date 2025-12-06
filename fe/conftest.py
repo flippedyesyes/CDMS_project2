@@ -1,9 +1,6 @@
-import requests
 import threading
-from urllib.parse import urljoin
 from be import serve
 from be.model.store import init_completed_event
-from fe import conf
 
 thread: threading.Thread = None
 
@@ -23,7 +20,6 @@ def pytest_configure(config):
 
 
 def pytest_unconfigure(config):
-    url = urljoin(conf.URL, "shutdown")
-    requests.get(url)
+    serve.request_shutdown()
     thread.join()
     print("frontend end test")

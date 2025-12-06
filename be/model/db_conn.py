@@ -1,37 +1,29 @@
-from pymongo.collection import Collection
-
-from be.model.mongo import get_book_collection
+from be.model.sql_conn import session_scope
+from be.model.models import User, Inventory, Bookstore
 
 
 class DBConn:
+    """提供 SQLAlchemy session 的基类"""
+
     def __init__(self):
-        self.collection: Collection = get_book_collection()
+        self.session_scope = session_scope
 
     def user_id_exist(self, user_id: str) -> bool:
-        return (
-            self.collection.find_one(
-                {"doc_type": "user", "user_id": user_id}, {"_id": 1}
-            )
-            is not None
-        )
+        with self.session_scope() as session:
+            return session.get(User, user_id) is not None
 
     def book_id_exist(self, store_id: str, book_id: str) -> bool:
-        return (
-            self.collection.find_one(
-                {
-                    "doc_type": "inventory",
-                    "store_id": store_id,
-                    "book_id": book_id,
-                },
-                {"_id": 1},
+        with self.session_scope() as session:
+            return (
+                session.query(Inventory)
+                .filter(
+                    Inventory.store_id == store_id,
+                    Inventory.book_id == book_id,
+                )
+                .first()
+                is not None
             )
-            is not None
-        )
 
     def store_id_exist(self, store_id: str) -> bool:
-        return (
-            self.collection.find_one(
-                {"doc_type": "store", "store_id": store_id}, {"_id": 1}
-            )
-            is not None
-        )
+        with self.session_scope() as session:
+            return session.get(Bookstore, store_id) is not None
