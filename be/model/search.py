@@ -4,7 +4,7 @@ from typing import Dict, List, Optional, Tuple
 
 from be.model import db_conn
 from be.model.dao import search_dao
-from be.util.doubao_client import DoubaoError, recognize_image_text
+from script.doubao_client import DoubaoError, recognize_image_text
 
 
 class Search(db_conn.DBConn):

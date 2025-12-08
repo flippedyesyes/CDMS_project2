@@ -26658,3 +26658,16 @@ INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 18:19:24] "POST /search/books_by_image 
 INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 18:19:24] "POST /search/books_by_image HTTP/1.1" 200 -
 INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 18:19:25] "POST /search/books_by_image HTTP/1.1" 200 -
 INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 18:19:25] "POST /search/books_by_image HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 19:42:12] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 19:42:12] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 19:42:12] "POST /seller/create_store HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 19:42:12] "POST /search/books_by_image HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 19:42:12] "POST /search/books_by_image HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 19:42:12] "POST /search/books_by_image HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 19:42:12] "POST /search/books_by_image HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 19:42:13] "POST /search/books_by_image HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 19:42:13] "POST /search/books_by_image HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 19:42:13] "POST /search/books_by_image HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 19:42:13] "POST /search/books_by_image HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 19:42:13] "POST /search/books_by_image HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 19:42:13] "POST /search/books_by_image HTTP/1.1" 200 -

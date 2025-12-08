@@ -1,6 +1,6 @@
 import argparse
 
-from be.util.doubao_client import DoubaoError, recognize_image_text
+from script.doubao_client import DoubaoError, recognize_image_text
 
 
 def main():

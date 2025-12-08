@@ -6,7 +6,7 @@ from typing import Dict
 
 from be.model.models import Book
 from be.model.sql_conn import session_scope
-from be.util.doubao_client import DoubaoError, recognize_image_text
+from script.doubao_client import DoubaoError, recognize_image_text
 
 DEFAULT_DIR = Path("test_pictures")
 DEFAULT_OUTPUT = DEFAULT_DIR / "ocr_results.json"

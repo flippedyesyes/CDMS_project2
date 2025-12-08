@@ -137,7 +137,7 @@
   | `book_id` | 可选。若 OCR 结果未命中数据库，会根据该 ID 兜底返回（同样为了测试稳定性）。 |
 - **处理流程**：
   1. 若设置 `BOOKSTORE_OCR_CACHE` 环境变量，则优先在缓存 JSON 中取 `image_path → {ocr_text, book_id}`，避免多次调用大模型。`script/generate_ocr_cache.py` 可批量刷新缓存。
-  2. 缓存和 `ocr_text` 都为空时调用 `be/util/doubao_client.py` 中的 `recognize_image_text()`。真实环境需提供 `DOUBAO_API_KEY`，测试时共用离线缓存即可。
+  2. 缓存和 `ocr_text` 都为空时调用 `script/doubao_client.py` 中的 `recognize_image_text()`。真实环境需提供 `DOUBAO_API_KEY`，测试时共用离线缓存即可。
   3. 对识别到的每一行文本执行去重、裁剪，调用 `search_books(keyword=..., store_id, page=1, page_size)`，把每个匹配结果统一去重后返回。
   4. 如果提供 `book_id` 且搜索结果中不存在该书，则直接查询 `Inventory+Book` 表并追加 `{"matched_keyword": "cached"}` 结果，保证测试用例能确定命中。
 - **返回体**：

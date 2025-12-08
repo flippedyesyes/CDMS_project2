@@ -54,3 +54,115 @@
 亮点展示（高并发控制、缓存、自动化测试、CI、监控等）。
 打包“代码 + 报告”，按课程命名规范提交，并附部署/测试说明（如何建库、运行 script/test.sh 等）。
 按照这一大纲推进，可覆盖课程的所有关键要求并留下充足的报告素材。如果需要对某个阶段进一步细化（例如 schema 设计或 DAO 模板），随时告诉我。
+
+完成内容总览
+
+关系库重构：所有核心表（users/stores/books/inventories/orders/order_items/book_search_index）升级到 MySQL，DAO + ORM +事务全部重写；BOOKSTORE_DB_URL 现为必填配置，不再 fallback SQLite。Mongo 仅保存 BLOB 与超长文本。
+索引/规范化/事务：doc/relational_schema.md、doc/index_design.md、doc/db_best_practices.md 已覆盖 ER→关系模式、3NF 说明、每个表的主外键与索引、以及下单/付款/发货/收货/自动超时的事务策略。
+新增 40% 功能+文档：
+/seller/batch_add_books：批量上架，多条结果统一返回。
+/buyer/orders/export：JSON/CSV 导出，支持过滤/排序。
+/search/books_by_image：OCR→全文索引，以 test_pictures/ocr_results.json 缓存 + script/doubao_client.py 接入 Doubao API；fe/test/test_search_by_image.py 做全流程断言。
+所有接口说明整理在 doc/api_extensions.md。
+OCR工具链：script/export_sample_covers.py、generate_ocr_cache.py、recognize_image_text.py、script/doubao_client.py 搭建图像识别与缓存刷新流程；测试使用缓存，线上可启用真实 API Key。
+数据导入/脚本：script/import_books_to_sql.py 将 book_lx.db 写入 MySQL（~4 万行），test_pictures 提供示例封面。
+测试与覆盖率：统一用
+.\.venv\Scripts\python -m coverage run --timid --branch --source fe,be --concurrency=thread -m pytest -v --ignore=fe/data
+全部 61 个 pytest（含 bench、导出、批量、以图搜书）通过，branch coverage ≈87%；coverage report/html 产出在 htmlcov/.
+日志/报告素材：app.log、doc/*、生成的 ER/索引图文都可直接引用到最终报告。
+下一步建议
+
+整理最终报告：突出 Mongo→MySQL 改动、索引/事务设计、OCR 流程、测试矩阵、覆盖率截图。
+若需要演示以图搜书，可使用我提供的脚本输出“每行关键词→匹配书籍”的清单，直观展示识别过程。
+
+61 passed in 307.71s (0:05:07)
+(.venv) (base) PS D:\dase\CDMS\大作业二\bookstore> coverage report
+Name                               Stmts   Miss Branch BrPart  Cover
+--------------------------------------------------------------------
+be\__init__.py                         0      0      0      0   100%
+be\app.py                              3      3      2      0     0%
+be\model\__init__.py                   0      0      0      0   100%
+be\model\buyer.py                    190     34     72     17    81%
+be\model\dao\__init__.py               0      0      0      0   100%
+be\model\dao\order_dao.py             57      7     18      7    81%
+be\model\dao\search_dao.py            49      7     20      5    80%
+be\model\dao\store_dao.py             36      3      4      0    92%
+be\model\dao\user_dao.py              62     17     12      2    72%
+be\model\db_conn.py                   14      0      0      0   100%
+be\model\error.py                     25      1      0      0    96%
+be\model\models.py                    91      0      0      0   100%
+be\model\mongo.py                     20      0      0      0   100%
+be\model\search.py                    92     30     26      5    67%
+be\model\seller.py                   143     28     64     12    80%
+be\model\sql_conn.py                  22      4      2      1    79%
+be\model\store.py                     10      1      2      1    83%
+be\model\user.py                     127     31     32      7    76%
+be\serve.py                           43      2      2      0    96%
+be\view\__init__.py                    0      0      0      0   100%
+be\view\auth.py                       42      0      0      0   100%
+be\view\buyer.py                      98     11     10      3    87%
+be\view\search.py                     38      6      4      2    81%
+be\view\seller.py                     49      0      0      0   100%
+fe\__init__.py                         0      0      0      0   100%
+fe\access\__init__.py                  0      0      0      0   100%
+fe\access\auth.py                     31      0      0      0   100%
+fe\access\book.py                    119     36     20      6    68%
+fe\access\buyer.py                    76      4     18      4    91%
+fe\access\new_buyer.py                 8      0      0      0   100%
+fe\access\new_seller.py                8      0      0      0   100%
+fe\access\search.py                   12      0      2      0   100%
+fe\access\seller.py                   43      0      0      0   100%
+fe\bench\__init__.py                   0      0      0      0   100%
+fe\bench\run.py                       13      0      6      0   100%
+fe\bench\session.py                   47      0     12      2    97%
+fe\bench\workload.py                 125      1     20      2    98%
+fe\conf.py                            11      0      0      0   100%
+fe\conftest.py                        15      0      0      0   100%
+fe\test\gen_book_data.py              49      1     16      2    95%
+fe\test\test_add_book.py              37      0     10      0   100%
+fe\test\test_add_funds.py             23      0      0      0   100%
+fe\test\test_add_stock_level.py       40      0     10      0   100%
+fe\test\test_bench.py                  6      2      0      0    67%
+fe\test\test_buyer_export.py          41      0      2      0   100%
+fe\test\test_create_store.py          20      0      0      0   100%
+fe\test\test_login.py                 28      0      0      0   100%
+fe\test\test_new_order.py             40      0      0      0   100%
+fe\test\test_order_edge_cases.py      64      1      4      1    97%
+fe\test\test_order_management.py     103      0      0      0   100%
+fe\test\test_password.py              33      0      0      0   100%
+fe\test\test_payment.py               60      1      4      1    97%
+fe\test\test_register.py              31      0      0      0   100%
+fe\test\test_search_books.py          60      0      0      0   100%
+fe\test\test_search_by_image.py       71      1      6      1    97%
+fe\test\test_seller_batch_add.py      42      0      2      0   100%
+fe\test\test_shipping_flow.py         43      1      4      1    96%
+fe\test\test_user_edge_cases.py       22      0      0      0   100%
+--------------------------------------------------------------------
+TOTAL                               2532    233    406     82    89%
+
+这些模块的低覆盖率主要来源如下，可以针对性补：
+
+be/model/user.py & be/model/dao/user_dao.py
+
+目前只有 happy-path 的注册/登录/改密用例，错误分支（例如 token 过期、重复注册、软删除恢复、update_token 返回 False）几乎没跑到。
+可在 fe/test/test_user_model_errors.py 恢复/新增一些模拟 DAO 异常和错误 token 的测试。
+be/model/seller.py / store.py / user.py
+
+许多 return error.xxx 分支和事务回滚没被覆盖。可以在现有卖家测试里增加“非法 store_id、库存不足、DAO 抛异常”的场景，或者用 monkeypatch 模拟 DAO 返回 False。
+be/model/search.py
+
+search_books_by_image 的缓存缺失、OCR 抛错、无关键词、兜底 book_id 等分支虽然有接口测试，但覆盖率仍偏低。可以针对这些逻辑写轻量的单元测试，直接调用 Search.search_books_by_image()，用临时图片/字符串构造不同情况。
+be/model/sql_conn.py
+
+_get_database_url 抛异常分支和 session_scope 的 rollback 逻辑未走过。可以在单测里临时清除 BOOKSTORE_DB_URL，断言会抛 RuntimeError；再构造一个故意抛异常的 SQL 操作以触发 rollback。
+fe/access/book.py
+
+_ensure_seed_data() 中大量逻辑未执行（因为跑测试时已经有 SQLite 文件）。可以写一个独立测试，用临时目录/空数据库去触发建表与 seed；或通过 monkeypatch 清空 book.db 后调用 BookDB()，验证新文件被创建。
+fe/test/test_bench.py（覆盖率 67%）
+
+主要是因为里面只有一个 assert 200 == 100 的错误分支。要提高覆盖率，可以再写一些 unit-test 风格的用例直接调用 fe.bench.workload.Workload 的方法，覆盖 get_new_order、update_stat 的分支，或者把 bench 逻辑拆到可测试的函数里。
+总的策略：
+
+先挑几个高收益模块（user.py、search.py、fe/access/book.py）补充定向单测，覆盖错误分支和兜底逻辑。
+对于 bench/DAO 这类难以在系统测试覆盖的部分，写专门的 unit test，利用 monkeypatch 模拟异常或使用临时数据库。
+记得所有新测都要跑 coverage run ... pytest，确保 branch coverage 回到 90% 附近。
