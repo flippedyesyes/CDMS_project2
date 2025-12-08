@@ -1,3 +1,4 @@
+import os
 from typing import List, Optional
 
 from sqlalchemy import or_
@@ -9,6 +10,8 @@ try:
     from sqlalchemy.dialects.mysql import match as mysql_match
 except ImportError:  # pragma: no cover
     mysql_match = None
+
+USE_FULLTEXT = mysql_match is not None and os.getenv("BOOKSTORE_DISABLE_FULLTEXT") != "1"
 
 
 def upsert_search_index(session: Session, book_id: str, **kwargs) -> BookSearchIndex:
@@ -53,7 +56,7 @@ def search_books(
         fields = scope or ["title", "author", "tags", "catalog", "content", "intro"]
         selected_columns = [column_map.get(f) for f in fields if column_map.get(f) is not None]
 
-        if mysql_match and selected_columns:
+        if USE_FULLTEXT and selected_columns:
             base_match = mysql_match(*selected_columns, against=keyword)
             score_column = base_match.label("match_score")
             query = query.filter(base_match.in_boolean_mode())

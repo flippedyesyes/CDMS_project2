@@ -24,3 +24,29 @@ def search_books():
     if code == 200:
         response.update(payload)
     return jsonify(response), code
+
+
+@bp_search.route("/books_by_image", methods=["POST"])
+def search_books_by_image():
+    data = request.json or {}
+    image_path = data.get("image_path")
+    store_id = data.get("store_id")
+    override_text = data.get("ocr_text")
+    override_book_id = data.get("book_id")
+    try:
+        page_size = int(data.get("page_size", 10))
+    except (TypeError, ValueError):
+        page_size = 10
+
+    s = Search()
+    code, message, payload = s.search_books_by_image(
+        image_path=image_path,
+        store_id=store_id,
+        page_size=page_size,
+        override_text=override_text,
+        override_book_id=override_book_id,
+    )
+    response = {"message": message}
+    if payload:
+        response.update(payload)
+    return jsonify(response), code

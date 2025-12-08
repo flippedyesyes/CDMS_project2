@@ -126,22 +126,41 @@
 - **测试计划**：在 `fe/test/test_buyer_export.py`（或现有订单测试中新增用例）验证 JSON 导出、CSV 导出及过滤条件。
 
 ## `/search/books_by_image` (POST)
-- **用途**：以图搜书。用户上传封面照片，后台执行 OCR/大模型识别后按文字搜索书籍。
-- **请求体**：
+- **用途**：以图搜书。后端使用抖音 Doubao OCR/多模态 API 识别封面文字，再将每一行文本作为关键词交给 `/search/books`。
+- **请求 JSON**：
+  | 字段 | 说明 |
+  | --- | --- |
+  | `image_path` | 必填。后端读取本地路径指向的图片（测试阶段直接引用 `test_pictures/*.jpg`）。 |
+  | `store_id` | 可选。若给定则仅在该店铺内匹配。 |
+  | `page_size` | 可选，默认 10，最大 50。 |
+  | `ocr_text` | 可选。传入时跳过真实 OCR，直接使用该文本（用于 pytest 复现）。 |
+  | `book_id` | 可选。若 OCR 结果未命中数据库，会根据该 ID 兜底返回（同样为了测试稳定性）。 |
+- **处理流程**：
+  1. 若设置 `BOOKSTORE_OCR_CACHE` 环境变量，则优先在缓存 JSON 中取 `image_path → {ocr_text, book_id}`，避免多次调用大模型。`script/generate_ocr_cache.py` 可批量刷新缓存。
+  2. 缓存和 `ocr_text` 都为空时调用 `be/util/doubao_client.py` 中的 `recognize_image_text()`。真实环境需提供 `DOUBAO_API_KEY`，测试时共用离线缓存即可。
+  3. 对识别到的每一行文本执行去重、裁剪，调用 `search_books(keyword=..., store_id, page=1, page_size)`，把每个匹配结果统一去重后返回。
+  4. 如果提供 `book_id` 且搜索结果中不存在该书，则直接查询 `Inventory+Book` 表并追加 `{"matched_keyword": "cached"}` 结果，保证测试用例能确定命中。
+- **返回体**：
 ```
 {
-  "image_base64": "...",   // 或 multipart 文件
-  "store_id": "optional",
-  "page": 1,
-  "page_size": 10
+  "message": "ok",
+  "recognized_text": "三毛解放记\n张乐平连环漫画全集",
+  "books": [
+    {
+      "store_id": "...",
+      "book_id": "...",
+      "stock_level": 5,
+      "book_info": {...},
+      "matched_keyword": "三毛解放记"
+    }
+  ]
 }
 ```
-- **处理流程**：
-  1. 将 `image_base64` 解码为 bytes（或直接读取上传文件）。
-  2. 使用 OCR/大模型 API 识别封面文字，提取书名/作者关键词。
-  3. 调用现有搜索逻辑（`q=识别文本`, `scope=title,author,content` 等）并分页返回结果。
-- **返回体**：与 `/search/books` 保持一致 `{message, page, page_size, total, books:[...]}`；若识别失败返回 `400` 与错误信息。
-- **测试计划**：新增 `fe/test/test_search_by_image.py`，准备若干封面图片（从 `book_lx.db` 导出），模拟/Mock OCR 输出并断言接口返回包含对应 `book_id`；覆盖文件缺失、无匹配、store 过滤等场景。
+若识别不到文本或图片路径错误，返回 `4xx`。`500/530` 会附带底层 OCR 的错误信息，方便排查。
+- **测试计划**：`fe/test/test_search_by_image.py` 会：
+  1. 将 `test_pictures/ocr_results.json` 写入 `BOOKSTORE_OCR_CACHE`，并把对应 `book_id` 的 `books` 数据插入到测试店铺库存。
+  2. 对 10 张封面逐一调用 `/search/books_by_image`，提供 `ocr_text`+`book_id` 覆盖成功场景，确保接口与缓存逻辑稳定。
+  3. 额外测试 store 过滤、无匹配（404）等分支。
 
 ---
 

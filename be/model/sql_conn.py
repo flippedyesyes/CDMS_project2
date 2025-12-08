@@ -4,11 +4,16 @@ from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-_DEFAULT_DB_URL = "sqlite:///bookstore.db"
-
 
 def _get_database_url() -> str:
-    return os.getenv("BOOKSTORE_DB_URL", _DEFAULT_DB_URL)
+    url = os.getenv("BOOKSTORE_DB_URL")
+    if not url:
+        raise RuntimeError(
+            "BOOKSTORE_DB_URL is not set. "
+            "Please export e.g. mysql+pymysql://USER:PWD@HOST:PORT/bookstore"
+        )
+    return url
+
 
 
 engine = create_engine(
