@@ -161,3 +161,42 @@ class Search(db_conn.DBConn):
             return 200, "ok", payload
         except BaseException as e:
             return 530, "{}".format(str(e)), {}
+
+    def recommend_by_tags(
+        self, tags: List[str], store_id: Optional[str], limit: int
+    ) -> Tuple[int, str, Dict]:
+        normalized = [tag.strip() for tag in tags if isinstance(tag, str) and tag.strip()]
+        if not normalized:
+            return 400, "tags are required", {}
+        safe_limit = limit if limit and limit > 0 else 10
+        safe_limit = min(safe_limit, 50)
+        try:
+            with self.session_scope() as session:
+                rows = search_dao.recommend_by_tags(
+                    session=session,
+                    tags=normalized,
+                    store_id=store_id,
+                    limit=safe_limit,
+                )
+                books: List[Dict] = []
+                for row in rows:
+                    inv = row["inventory"]
+                    info_str = getattr(inv, "book_info", "") or "{}"
+                    try:
+                        book_info = json.loads(info_str)
+                    except (TypeError, ValueError):
+                        book_info = {}
+                    books.append(
+                        {
+                            "store_id": inv.store_id,
+                            "book_id": inv.book_id,
+                            "stock_level": inv.stock_level,
+                            "book_info": book_info,
+                            "matched_tags": row.get("matched_tags", []),
+                            "sold_count": row.get("sold_count", 0),
+                            "sales_amount": row.get("sales_amount", 0),
+                        }
+                    )
+                return 200, "ok", {"tags": normalized, "books": books}
+        except BaseException as e:
+            return 530, "{}".format(str(e)), {}

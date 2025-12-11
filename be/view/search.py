@@ -50,3 +50,24 @@ def search_books_by_image():
     if payload:
         response.update(payload)
     return jsonify(response), code
+
+
+@bp_search.route("/recommend_by_tags", methods=["POST"])
+def recommend_by_tags():
+    data = request.json or {}
+    tags = data.get("tags") or []
+    store_id = data.get("store_id")
+    try:
+        limit = int(data.get("limit", 10))
+    except (TypeError, ValueError):
+        limit = 10
+
+    if isinstance(tags, str):
+        tags = [tags]
+
+    s = Search()
+    code, message, payload = s.recommend_by_tags(tags=tags, store_id=store_id, limit=limit)
+    response = {"message": message}
+    if payload:
+        response.update(payload)
+    return jsonify(response), code

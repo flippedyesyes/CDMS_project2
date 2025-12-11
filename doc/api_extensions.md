@@ -162,6 +162,40 @@
   2. 对 10 张封面逐一调用 `/search/books_by_image`，提供 `ocr_text`+`book_id` 覆盖成功场景，确保接口与缓存逻辑稳定。
   3. 额外测试 store 过滤、无匹配（404）等分支。
 
+## `/search/recommend_by_tags` (POST)
+- **用途**：当买家“只知道想要的标签”时，返回匹配标签且销量靠前的书籍，类似轻量级推荐系统。
+- **请求 JSON**：
+  | 字段 | 说明 |
+  | --- | --- |
+  | `tags` | 必填，字符串或字符串数组，表示感兴趣的标签，例如 `["悬疑","冒险"]`。 |
+  | `store_id` | 可选，指定店铺内的推荐；为空则在全站范围内搜索。 |
+  | `limit` | 可选，返回条数（默认 10，最大 50）。 |
+- **实现流程**：
+  1. 将标签统一小写、去重。
+  2. 使用 `book_search_index.tags` 的 FULLTEXT / `LIKE` 条件筛出包含这些标签的候选书。  
+  3. 通过 `orders` + `order_items` 聚合销量 (`sold_count`, `sales_amount`)，只统计状态在 `paid/shipped/delivered` 的订单。
+  4. 结合销量和更新时间排序，返回匹配标签、库存信息、销量统计。
+- **返回体**：
+```
+{
+  "message": "ok",
+  "tags": ["悬疑"],
+  "books": [
+    {
+      "store_id": "...",
+      "book_id": "...",
+      "book_info": {...},
+      "matched_tags": ["悬疑"],
+      "sold_count": 5,
+      "sales_amount": 15000
+    }
+  ]
+}
+```
+- **测试计划**：`fe/test/test_recommend_by_tags.py` 会上架三本带不同标签的图书，通过买家下单制造销量后，调用新接口并断言：
+  1. `tags=["悬疑"]` 时，销量高的悬疑书排在首位；
+  2. `tags=["言情"]` 只返回匹配书籍，并且 `matched_tags` 字段包含请求标签。
+
 ---
 
 以上规划将作为 Lab2 实施的接口参考；在实现与测试阶段会依据本文件补充 API 文档与用例。

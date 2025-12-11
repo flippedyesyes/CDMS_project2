@@ -26671,3 +26671,34 @@ INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 19:42:13] "POST /search/books_by_image 
 INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 19:42:13] "POST /search/books_by_image HTTP/1.1" 200 -
 INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 19:42:13] "POST /search/books_by_image HTTP/1.1" 200 -
 INFO:werkzeug:127.0.0.1 - - [08/Dec/2025 19:42:13] "POST /search/books_by_image HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:18:23] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:18:23] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:18:23] "POST /seller/create_store HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:18:23] "[35m[1mPOST /seller/add_book HTTP/1.1[0m" 530 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:21:49] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:21:49] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:21:49] "POST /seller/create_store HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:21:49] "[35m[1mPOST /seller/add_book HTTP/1.1[0m" 530 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:22:29] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:22:29] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:22:29] "POST /seller/create_store HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:22:29] "POST /seller/add_book HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:22:29] "POST /seller/add_book HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:22:29] "POST /seller/add_book HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:22:29] "POST /auth/register HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:22:29] "POST /auth/login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:22:29] "POST /buyer/add_funds HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:22:29] "POST /buyer/new_order HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:22:30] "POST /buyer/payment HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:22:30] "POST /buyer/new_order HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:22:30] "POST /buyer/payment HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:22:30] "POST /buyer/new_order HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:22:30] "POST /buyer/payment HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:22:32] "POST /search/recommend_by_tags HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [11/Dec/2025 11:22:34] "POST /search/recommend_by_tags HTTP/1.1" 200 -
+ERROR:root:token decode error: Invalid header string: 'utf-8' codec can't decode byte 0x8a in position 0: invalid start byte
+INFO:root:TPS_C=5, NO=OK:2 Thread_num:2 TOTAL:2 LATENCY:0.2 , P=OK:1 Thread_num:1 TOTAL:1 LATENCY:0.2
+INFO:root:TPS_C=5, NO=OK:2 Thread_num:2 TOTAL:2 LATENCY:0.2 , P=OK:1 Thread_num:1 TOTAL:1 LATENCY:0.2
+ERROR:root:token decode error: Invalid header string: 'utf-8' codec can't decode byte 0x8a in position 0: invalid start byte
+ERROR:root:token decode error: Invalid header string: 'utf-8' codec can't decode byte 0x8a in position 0: invalid start byte
+ERROR:root:token decode error: Invalid header string: 'utf-8' codec can't decode byte 0x8a in position 0: invalid start byte
